@@ -1,34 +1,39 @@
 import time
 import threading 
 import typing
-from datetime import datetime
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 
 from hololinked.param import depends_on
-from hololinked.server import Thing 
+from hololinked.server import Thing, action 
 from hololinked.server.properties import (Number, Integer, String, Selector, 
                                         Boolean, ClassSelector)
 from hololinked.client import ObjectProxy
-
+from hololinked.server.td import JSONSchema
 
 class TriggerReader(BaseModel):
     instance_name: str
     address: str
     protocol : str
 
+    def json(self):
+        return self.model_dump(mode='json')
+    
+JSONSchema.register_type_replacement(TriggerReader, 'object', TriggerReader.model_json_schema())
+
 
 class HWTriggeredDevice(Thing):
     """
-    Prototype class for hardware triggered devices. Inherit from this class to collect measurement on hardware trigger which 
-    arrives as a software event.
+    Prototype class for hardware triggered devices. Inherit from this class to 
+    collect measurement on hardware trigger which arrives as a software event.
     """
 
-    def __init__(self, instance_name : str) -> None:
-        super().__init__(instance_name=instance_name)
+    def __init__(self, instance_name : str, **kwargs) -> None:
+        super().__init__(instance_name=instance_name, **kwargs)
         self._shot_update_lock = threading.Lock()
         self._shot_updated_event = threading.Event()
-        self._shot_update_successful = False
-        self._trigger_device = ObjectProxy(self.trigger_reader.address, self.trigger_reader.protocol)
+        self.shot_update_successful = False
+        self._trigger_device = ObjectProxy(self.trigger_reader.instance_name, self.trigger_reader.protocol)
 
 
     shot_number = Integer(doc="latest shot number counted, None for never counted", 
@@ -65,16 +70,24 @@ class HWTriggeredDevice(Thing):
         try: 
             # reset every shot
             self._shot_updated_event.clear()
-            self._shot_update_successful = False 
+            self.shot_update_successful = False 
 
             # retrieve values first
             shot_number = event_data['trigger_count'] # type: int
             system_shot_time = event_data['system_time'] # type: typing.Union[float, int]
             shot_time = event_data['timestamp'] # type: str
 
-            # did shot event come on time? 
-            if (self.counting_mode == 'COMPUTER-ISOLATED' and time.perf_counter() - system_shot_time > self.trigger_arrival_tolerance_time) or (
-                self.counting_mode == 'DAQ-SYSTEM-WIDE' and datetime.now() - shot_time > self.trigger_arrival_tolerance_time):
+            # time of arrival
+            if self.counting_mode == 'COMPUTER-ISOLATED':
+                difference_ms = time.perf_counter() - system_shot_time 
+            elif self.counting_mode == 'DAQ-SYSTEM-WIDE':
+                difference = datetime.now() - datetime.strptime(shot_time, '%Y-%m-%dT%H:%M:%S.%f') 
+                difference_ms = difference.total_seconds()
+            self.logger.debug(f"shot event {shot_number} arrived in {difference_ms*1000} ms")
+
+            # did it come on time?
+            if difference_ms > self.trigger_arrival_tolerance_time:
+                self.reset_shot_info()
                 self.logger.error(f"shot event {shot_number} arrived too late")
                 return 
             else:
@@ -85,7 +98,7 @@ class HWTriggeredDevice(Thing):
                 # collect the measurement
                 self.collect_measurement()
                 # claim shot event came on time
-                self._shot_update_successful = True
+                self.shot_update_successful = True
                 self._shot_updated_event.set()
         finally:
             # cleanup
@@ -112,11 +125,27 @@ class HWTriggeredDevice(Thing):
         self._shot_updated_event.clear()
 
 
-    @depends_on(shot_counting_enabled)
-    def shot_counting_enabled_changed(self, value):
+    # @depends_on(shot_counting_enabled, on_init=False)
+    @action(input_schema={
+        'type' : 'object', 
+        'properties' : {
+            'value' : {'type' : 'boolean'}
+        }, 
+        'required' : ['value']}
+    )
+    def toggle_shot_counting(self, value : bool):
         if value:
             self.logger.info(f'shot counting enabled')
             self._trigger_device.subscribe_event('hardware-trigger-event', self.shot_event)
         else:
             self.logger.info(f'shot counting disabled')
             self._trigger_device.unsubscribe_event('hardware-trigger-event')
+
+    @action()
+    def reset_shot_info(self):
+        self.shot_number = None
+        self.shot_time = None
+        self.system_shot_time = None
+        self.shot_update_successful = False
+        self._shot_updated_event.clear()
+        self.logger.info('shot info reset')
