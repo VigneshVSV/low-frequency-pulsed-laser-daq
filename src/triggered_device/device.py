@@ -2,25 +2,17 @@ import time
 import threading 
 import typing
 from datetime import datetime
-from pydantic import BaseModel
+
 
 from hololinked.param import depends_on
 from hololinked.server import Thing, action 
 from hololinked.server.properties import (Number, Integer, String, Selector, 
                                         Boolean, ClassSelector)
 from hololinked.client import ObjectProxy
-from hololinked.server.td import JSONSchema
+
 from .schema import *
 
-class TriggerReader(BaseModel):
-    instance_name: str
-    address: str
-    protocol : str
 
-    def json(self):
-        return self.model_dump(mode='json')
-    
-JSONSchema.register_type_replacement(TriggerReader, 'object', TriggerReader.model_json_schema())
 
 
 
@@ -35,12 +27,16 @@ class HWTriggeredDevice(Thing):
         self._shot_update_lock = threading.Lock()
         self._shot_updated_event = threading.Event()
         self.shot_update_successful = False
-        self._trigger_device = ObjectProxy(
+        try:
+            self._trigger_device = ObjectProxy(
                                         instance_name=self.trigger_reader.instance_name, 
                                         protocol=self.trigger_reader.protocol, 
                                         handshake_timeout=10000
                                     )
-
+            self.toggle_shot_counting(True)
+        except ConnectionError:
+            self.logger.error(f"trigger reader device {self.trigger_reader.instance_name} not found")
+            self._trigger_device = None
 
     shot_number = Integer(doc="latest shot number counted, None for never counted", 
                         default=None, allow_None=True, bounds=(0, None)) # type: typing.Optional[int]
@@ -134,6 +130,7 @@ class HWTriggeredDevice(Thing):
             assert isinstance(trigger_delay_tolerance_reference_time, datetime), "you passed a wrong reference time, you need to send python standard datetime object"
             elapsed_time = datetime.now() - trigger_delay_tolerance_reference_time
         if self.trigger_arrival_tolerance_time - elapsed_time > 0:
+            self.logger.debug(f"will wait for trigger event to arrive upto {self.trigger_arrival_tolerance_time - elapsed_time} seconds")
             self._shot_updated_event.wait(self.trigger_arrival_tolerance_time - elapsed_time)
         self._shot_update_lock.acquire() # ensure no unnecessary blocking from shot event thread -> shot event thread completed
         self._shot_update_lock.release()
@@ -144,11 +141,13 @@ class HWTriggeredDevice(Thing):
     @action(input_schema=toggle_shot_counting_schema)
     def toggle_shot_counting(self, value : bool):
         if value:
-            self.logger.info(f'shot counting enabled')
             self._trigger_device.subscribe_event('hardware-trigger-event', self.shot_event)
+            self.logger.info(f'shot counting enabled')
+            self.shot_counting_enabled = True
         else:
-            self.logger.info(f'shot counting disabled')
             self._trigger_device.unsubscribe_event('hardware-trigger-event')
+            self.logger.info(f'shot counting disabled')
+            self.shot_counting_enabled = False
 
     @action()
     def reset_shot_info(self):
@@ -158,3 +157,16 @@ class HWTriggeredDevice(Thing):
         self.shot_update_successful = False
         self._shot_updated_event.clear()
         self.logger.debug('shot info reset')
+    	
+    @action()
+    def resubscribe_shot_counter(self):
+        """recreate proxy object for trigger reader"""
+        if self.trigger_reader is not None:
+            self.trigger_reader.ping()
+            return 
+        self.trigger_reader = ObjectProxy(
+                                    instance_name=self.trigger_reader.instance_name, 
+                                    protocol=self.trigger_reader.protocol, 
+                                    handshake_timeout=10000
+                                )
+        self.toggle_shot_counting(self.shot_counting_enabled)
