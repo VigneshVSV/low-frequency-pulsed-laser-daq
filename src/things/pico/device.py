@@ -1,5 +1,7 @@
+import os
 import time 
 import pandas as pd
+import datetime
 
 from picoscope import Picoscope6000
 # See base implementation here : https://gitlab.com/hololinked-examples/picoscope
@@ -12,7 +14,11 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
 
     def __init__(self, instance_name: str, **kwargs) -> None:
         super().__init__(instance_name=instance_name, **kwargs)
-        self.data_file = FileStorage()
+        self.data_file = FileStorage(
+                            path=os.environ.get('DATA_PATH', r'data\pico_data'),
+                            filename='shotlog.txt',
+                            columns=['shot_number', 'shot_time', 'meaurement_time', 'file_path']
+                        )
 
     def measurement_loop(self, max_acq = -1):
         self._run = True
@@ -25,14 +31,15 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
             self.logger.debug(f"starting next acquisition")
             data = self.run_blocked_acq_HL(time_interval=self.time_interval, resolution=self.resolution, 
                                         pre_trigger=self.pre_trigger)  
-            measurement_time = time.perf_counter()
-            self.logger.debug(f"acquisition took {measurement_time - acquisition_start_time} ms")
+            acquisition_end_time = time.perf_counter()
+            measurement_time = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
+            self.logger.debug(f"acquisition took {acquisition_end_time - acquisition_start_time} ms")
             counter += 1
             if not len(data) > 0:
                 continue
 
             if self.trigger_reader is not None:
-                self.wait_for_trigger_event(measurement_time)
+                self.wait_for_trigger_event(acquisition_end_time)
             if not self.shot_update_successful:
                 self.logger.error(f"shot event {counter} arrived too late")
                 if self.use_only_successful_shots:
@@ -59,12 +66,20 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
             data = pd.DataFrame(data)
             self.data_ready_event.push(measurement_time)
             if hasattr(self, 'data_file'):
-                self.data_file.store_in_new(data)
+                filename = f'trace_{measurement_time.replace("T", "_").replace("-", "").replace(":", "").replace(".", "_")}.pkl'
+                self.data_file.store(*[self.shot_number, self.shot_time, measurement_time, 
+                                        fr'{self.data_file.path}\traces\{filename}'])
+                self.data_file.store_in_new(
+                                        filename=filename,
+                                        relative_path='traces',
+                                        file_writer_hook=store_data_in_pickled_format,
+                                        data=data
+                                    )
             self.logger.debug(f"took measurement {counter} at {measurement_time} system time, total elapsed time {time.perf_counter() - acquisition_start_time} ms")
 
 
-def store_data_in_pickled_format(file_handle, data : pd.DataFrame):
-    data.to_pickle(file_handle)
+def store_data_in_pickled_format(file_path : str, data : pd.DataFrame):
+    data.to_pickle(file_path)
 
 
 
