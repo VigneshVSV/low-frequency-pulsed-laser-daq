@@ -1,0 +1,3 @@
+[submodule "src/diy-arduino-hardware-trigger-reader"]
+	path = src/diy-arduino-hardware-trigger-reader
+	url = https://gitlab.com/hololinked-examples/diy-arduino-hardware-trigger-reader
