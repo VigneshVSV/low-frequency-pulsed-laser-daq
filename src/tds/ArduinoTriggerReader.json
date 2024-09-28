@@ -1,0 +1,257 @@
+{
+    "@context": "https://www.w3.org/2022/wot/td/v1.1",
+    "id": "https://example.com/arduino-trigger-reader",
+    "title": "TriggerReader",
+    "description": "no class doc provided",
+    "properties": {
+      "state": {
+        "title": "state",
+        "description": "current state machine's state if state machine present, None indicates absence of state machine.",
+        "readOnly": true,
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/state",
+            "op": "readproperty",
+            "htv:methodName": "GET",
+            "contentType": "application/json"
+          },
+          {
+            "href": "https://example.com/arduino-trigger-reader/state/change-event",
+            "op": "observeproperty",
+            "htv:methodName": "GET",
+            "contentType": "text/plain",
+            "subprotocol": "sse"
+          }
+        ],
+        "observable": true
+      },
+      "serial_URL": {
+        "title": "serial_URL",
+        "description": "serial address of arduino device",
+        "default": "",
+        "type": "string",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/serial-URL",
+            "op": "readproperty",
+            "htv:methodName": "GET",
+            "contentType": "application/json"
+          },
+          {
+            "href": "https://example.com/arduino-trigger-reader/serial-URL",
+            "op": "writeproperty",
+            "htv:methodName": "PUT",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "status": {
+        "title": "status",
+        "description": "status of the device",
+        "readOnly": true,
+        "type": "string",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/status",
+            "op": "readproperty",
+            "htv:methodName": "GET",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "trigger_count": {
+        "title": "trigger_count",
+        "description": "count of trigger events",
+        "readOnly": true,
+        "type": "integer",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/trigger-count",
+            "op": "readproperty",
+            "htv:methodName": "GET",
+            "contentType": "application/json"
+          }
+        ],
+        "minimum": 0
+      }
+    },
+    "actions": {
+      "connect": {
+        "title": "connect",
+        "description": "connect to the arduino",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/connect",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "disconnect": {
+        "title": "disconnect",
+        "description": "disconnect from the arduino",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/disconnect",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "exit": {
+        "title": "exit",
+        "description": "Exit the object without killing the eventloop that runs this object. If Thing was started using the run() method, the eventloop is also killed. This method can only be called remotely.",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/exit",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "load_properties_from_DB": {
+        "title": "load_properties_from_DB",
+        "description": "Load and apply property values which have ``db_init`` or ``db_persist`` set to ``True`` from database",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/properties/db-reload",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "ping": {
+        "title": "ping",
+        "description": "ping the Thing to see if it is alive",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/ping",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      },
+      "start_reading": {
+        "title": "start_reading",
+        "description": "start readout of trigger pulses",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/start-reading",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ],
+        "input": {
+          "type": "object",
+          "properties": {
+            "max_count": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0,
+              "description": "Maximum count of trigger events to read. 0 for no limit."
+            }
+          },
+          "required": [
+            
+          ]
+        }
+      },
+      "stop_reading": {
+        "title": "stop_reading",
+        "description": "stop readout of trigger pulses",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/stop-reading",
+            "op": "invokeaction",
+            "htv:methodName": "POST",
+            "contentType": "application/json"
+          }
+        ]
+      }
+    },
+    "events": {
+      "trigger_event": {
+        "title": "trigger_event",
+        "description": "software event for the hardware trigger",
+        "forms": [
+          {
+            "href": "https://example.com/arduino-trigger-reader/hardware-trigger-event",
+            "op": "subscribeevent",
+            "htv:methodName": "GET",
+            "contentType": "text/plain",
+            "subprotocol": "sse"
+          }
+        ],
+        "data": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The timestamp of the trigger event"
+            },
+            "trigger_count": {
+              "type": "integer",
+              "description": "The count of trigger events"
+            },
+            "system_time": {
+              "type": "number",
+              "description": "The system time when the trigger was received"
+            }
+          },
+          "required": [
+            "timestamp",
+            "trigger_count",
+            "system_time"
+          ]
+        }
+      }
+    },
+    "forms": [
+      {
+        "href": "https://example.com/arduino-trigger-reader/properties",
+        "op": "readallproperties",
+        "htv:methodName": "GET",
+        "contentType": "application/json"
+      },
+      {
+        "href": "https://example.com/arduino-trigger-reader/properties",
+        "op": "writeallproperties",
+        "htv:methodName": "PUT",
+        "contentType": "application/json"
+      },
+      {
+        "href": "https://example.com/arduino-trigger-reader/properties",
+        "op": "readmultipleproperties",
+        "htv:methodName": "GET",
+        "contentType": "application/json"
+      },
+      {
+        "href": "https://example.com/arduino-trigger-reader/properties",
+        "op": "writemultipleproperties",
+        "htv:methodName": "PATCH",
+        "contentType": "application/json"
+      }
+    ],
+    "security": "unimplemented",
+    "securityDefinitions": {
+      "unimplemented": {
+        "scheme": "nosec",
+        "description": "currently no security scheme supported - use cookie auth directly on hololinked.server.HTTPServer object"
+      }
+    }
+  }

@@ -1,0 +1,348 @@
+{
+  "@context": "https://www.w3.org/2022/wot/td/v1.1",
+  "id": "https://example.com/triggered-device-test",
+  "title": "HWTriggeredDevice",
+  "description": "Prototype class for hardware triggered devices. Inherit from this class to collect measurement from your instrumentation on a hardware trigger that arrives as a software event.",
+  "properties": {
+    "shot_number": {
+      "title": "shot_number",
+      "description": "latest shot number counted, None for never counted",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/shot-number",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/shot-number",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "shot_time": {
+      "title": "shot_time",
+      "description": "time of the lastest shot, None for no shots arrived",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/shot-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/shot-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "system_shot_time": {
+      "title": "system_shot_time",
+      "description": "system time of the lastest shot, None for no shots arrived",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/system-shot-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/system-shot-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "experiment_run_no": {
+      "title": "experiment_run_no",
+      "description": "experiment run number, increment for every new experiment run before starting to count the HW triggers",
+      "default": 1,
+      "type": "integer",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/experiment-run-no",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/experiment-run-no",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 1
+    },
+    "shot_counting_enabled": {
+      "title": "shot_counting_enabled",
+      "description": "enable counting of shots (consider this also as an action)",
+      "default": false,
+      "type": "boolean",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/shot-counting-enabled",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/shot-counting-enabled",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "trigger_reader": {
+      "title": "trigger_reader",
+      "description": "trigger reader device address",
+      "default": {
+        "instance_name": "arduino-trigger-reader",
+        "address": "",
+        "protocol": "IPC"
+      },
+      "readOnly": true,
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "instance_name": {
+              "title": "Instance Name",
+              "type": "string"
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            },
+            "protocol": {
+              "title": "Protocol",
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_name",
+            "address",
+            "protocol"
+          ],
+          "title": "TriggerReader"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/trigger-reader",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "counting_mode": {
+      "title": "counting_mode",
+      "description": "Judges the way in which the trigger arrival time stamps will be used. DAQ-SYSTEM-WIDE is to be used when the trigger arrival time stamps originate from a global trigger reading device producing a global time stamp passed onto all measurement devices in all computers. In this case, the clocks of the computers need to accurate/in-sync desirable to the speed of the application/trigger frequency. COMPUTER-ISOLATED means the trigger arrival time stamps will be judged by the system time (performance counter) of the computer. In this case, there must be a trigger reader in every computer.",
+      "default": "COMPUTER-ISOLATED",
+      "type": "string",
+      "enum": [
+        "DAQ-SYSTEM-WIDE",
+        "COMPUTER-ISOLATED"
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/counting-mode",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/counting-mode",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "trigger_arrival_tolerance_time": {
+      "title": "trigger_arrival_tolerance_time",
+      "description": "trigger arrival tolerance time in seconds, for example, 0.025 for 25ms",
+      "default": 0.025,
+      "type": "number",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/trigger-arrival-tolerance-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/trigger-arrival-tolerance-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "use_only_successful_shots": {
+      "title": "use_only_successful_shots",
+      "description": "use only successful shots for data collection",
+      "default": true,
+      "type": "boolean",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/use-only-successful-shots",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/triggered-device-test/use-only-successful-shots",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "exit": {
+      "title": "exit",
+      "description": "Exit the object without killing the eventloop that runs this object. If Thing was started using the run() method, the eventloop is also killed. This method can only be called remotely.",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/exit",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "load_properties_from_DB": {
+      "title": "load_properties_from_DB",
+      "description": "Load and apply property values which have ``db_init`` or ``db_persist`` set to ``True`` from database",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/properties/db-reload",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "ping": {
+      "title": "ping",
+      "description": "ping the Thing to see if it is alive",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/ping",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "reset_shot_info": {
+      "title": "reset_shot_info",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/reset-shot-info",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "toggle_shot_counting": {
+      "title": "toggle_shot_counting",
+      "forms": [
+        {
+          "href": "https://example.com/triggered-device-test/toggle-shot-counting",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+    }
+  },
+  "events": {},
+  "forms": [
+    {
+      "href": "https://example.com/triggered-device-test/properties",
+      "op": "readallproperties",
+      "htv:methodName": "GET",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/triggered-device-test/properties",
+      "op": "writeallproperties",
+      "htv:methodName": "PUT",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/triggered-device-test/properties",
+      "op": "readmultipleproperties",
+      "htv:methodName": "GET",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/triggered-device-test/properties",
+      "op": "writemultipleproperties",
+      "htv:methodName": "PATCH",
+      "contentType": "application/json"
+    }
+  ],
+  "security": "unimplemented",
+  "securityDefinitions": {
+    "unimplemented": {
+      "scheme": "nosec",
+      "description": "currently no security scheme supported - use cookie auth directly on hololinked.server.HTTPServer object"
+    }
+  }
+}
