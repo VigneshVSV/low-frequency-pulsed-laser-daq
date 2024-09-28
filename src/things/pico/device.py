@@ -10,27 +10,26 @@ from triggered_device import HWTriggeredDevice
 
 class Picoscope(Picoscope6000, HWTriggeredDevice):
 
-    def __init__(self, instance_name: str) -> None:
-        Picoscope6000.__init__(self, instance_name)
-        HWTriggeredDevice.__init__(self, instance_name)
+    def __init__(self, instance_name: str, **kwargs) -> None:
+        super().__init__(instance_name=instance_name, **kwargs)
         self.data_file = FileStorage()
 
-    def block_loop(self, time_interval, resolution, pre_trigger = 0, max_acq = -1):
+    def measurement_loop(self, max_acq = -1):
         self._run = True
         counter = 0
         while self._run:
             if max_acq > 0 and counter >= max_acq:
                 break
-
             acquisition_start_time = time.perf_counter()
             self.reset_shot_info()
             self.logger.debug(f"starting next acquisition")
-
-            data = self.run_block_hl(time_interval, resolution, pre_trigger)  
+            data = self.run_blocked_acq_HL(time_interval=self.time_interval, resolution=self.resolution, 
+                                        pre_trigger=self.pre_trigger)  
+            measurement_time = time.perf_counter()
+            self.logger.debug(f"acquisition took {measurement_time - acquisition_start_time} ms")
             counter += 1
             if not len(data) > 0:
                 continue
-            measurement_time = time.perf_counter()
 
             if self.trigger_reader is not None:
                 self.wait_for_trigger_event(measurement_time)
@@ -40,30 +39,33 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
                     continue
             
             if 'A' in data:
-                self.channel_A = data['A']
+                self._channel_A = data['A']
             else:
-                self.channel_A = None 
+                self._channel_A = None 
             if 'B' in data:
-                self.channel_B = data['B']
+                self._channel_B = data['B']
             else:
-                self.channel_B = None 
+                self._channel_B = None 
             if 'C' in data:
-                self.channel_C = data['C']
+                self._channel_C = data['C']
             else:
-                self.channel_C = None
+                self._channel_C = None
             if 'D' in data:
-                self.channel_D = data['D']
+                self._channel_D = data['D']
             else:
-                self.channel_D = None
-            self.time = data['t']
+                self._channel_D = None
+            self._time = data['t']
 
             data = pd.DataFrame(data)
             self.data_ready_event.push(measurement_time)
             if hasattr(self, 'data_file'):
-                self.data_file.store_in_new_file(data)
+                self.data_file.store_in_new(data)
             self.logger.debug(f"took measurement {counter} at {measurement_time} system time, total elapsed time {time.perf_counter() - acquisition_start_time} ms")
-           
+
 
 def store_data_in_pickled_format(file_handle, data : pd.DataFrame):
     data.to_pickle(file_handle)
+
+
+
  
