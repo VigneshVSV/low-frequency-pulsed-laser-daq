@@ -1,30 +1,34 @@
 import os 
 import typing
-from .base import StorageBase
+from .base import BaseStorage
 
-class FileStorage(StorageBase):
+class FileStorage(BaseStorage):
     """File storage class to store data in a file"""
 
-    def __init__(self, path : str, filename : str, separator : str = r'\t', columns : typing.List[str] = []):
+    def __init__(self, path : str, filename : str, separator : str = '\t', columns : typing.List[str] = []):
         self.path = path
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)     
-        with open(f'{self.path}\{self.filename}', 'w') as f:
-            headerline = '\t'.join(columns)
-            f.write(headerline + '\n')
         self.filename = filename
         self.separator = separator
+        if not os.path.exists(self.path):
+            os.makedirs(self.path)     
+        if not os.path.isfile(fr'{self.path}\{self.filename}'):
+            with open(fr'{self.path}\{self.filename}', 'w') as file:
+                headerline = self.separator.join(columns)
+                file.write(headerline + '\n')
 
     def store(self, *data):
         dataline = self.separator.join(['{}'.format(val) for val in data])
-        with open(f'{self.path}\{self.filename}', 'w') as f:
-            f.write(dataline + '\n')
+        with open(fr'{self.path}\{self.filename}', 'a') as file:
+            file.write(dataline + '\n')
 
-    def store_in_new_file(self, filename : str, relative_path : str = '', 
+    def store_in_new(self, filename : str, relative_path : str = '', 
                         file_writer_hook : typing.Callable[[typing.Any], typing.Any] = None,  
                         data : typing.Any = None):
-        with open(f'{self.path}\{relative_path + '\\' if relative_path else ''}\{filename}', 'w') as f:
-            if file_writer_hook:
-                file_writer_hook(f, data)
-            else:
-                f.write('{}'.format(data))
+        if not os.path.exists(fr'{self.path}\{relative_path}'):
+            os.makedirs(fr'{self.path}\{relative_path}')
+        fullpath = fr'{self.path}\{relative_path}\{filename}'
+        if file_writer_hook:
+            file_writer_hook(fullpath, data)
+        else:
+            with open(fullpath, 'w') as file:
+                file.write('{}'.format(data))
