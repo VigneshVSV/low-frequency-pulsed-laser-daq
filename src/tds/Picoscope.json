@@ -1,0 +1,1017 @@
+{
+  "@context": "https://www.w3.org/2022/wot/td/v1.1",
+  "id": "https://example.com/picoscope",
+  "title": "Picoscope",
+  "description": "no class doc provided",
+  "properties": {
+    "shot_number": {
+      "title": "shot_number",
+      "description": "latest shot number counted, None for never counted",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/shot-number",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/shot-number",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "shot_time": {
+      "title": "shot_time",
+      "description": "time of the lastest shot, None for no shots arrived",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/shot-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/shot-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "system_shot_time": {
+      "title": "system_shot_time",
+      "description": "system time of the lastest shot, None for no shots arrived",
+      "default": null,
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/system-shot-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/system-shot-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "experiment_run_no": {
+      "title": "experiment_run_no",
+      "description": "experiment run number, increment for every new experiment run before starting to count the HW triggers",
+      "default": 1,
+      "type": "integer",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/experiment-run-no",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/experiment-run-no",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 1
+    },
+    "shot_counting_enabled": {
+      "title": "shot_counting_enabled",
+      "description": "enable counting of shots (consider this also as an action)",
+      "default": false,
+      "type": "boolean",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/shot-counting-enabled",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/shot-counting-enabled",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "trigger_reader": {
+      "title": "trigger_reader",
+      "description": "trigger reader device address",
+      "default": {
+        "instance_name": "arduino-trigger-reader",
+        "address": "",
+        "protocol": "IPC"
+      },
+      "readOnly": true,
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "instance_name": {
+              "title": "Instance Name",
+              "type": "string"
+            },
+            "address": {
+              "title": "Address",
+              "type": "string"
+            },
+            "protocol": {
+              "title": "Protocol",
+              "type": "string"
+            }
+          },
+          "required": [
+            "instance_name",
+            "address",
+            "protocol"
+          ],
+          "title": "TriggerReader"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/trigger-reader",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "counting_mode": {
+      "title": "counting_mode",
+      "description": "Judges the way in which the trigger arrival time stamps will be used. DAQ-SYSTEM-WIDE is to be used when the trigger arrival time stamps originate from a global trigger reading device producing a global time stamp passed onto all measurement devices in all computers. In this case, the clocks of the computers need to accurate/in-sync desirable to the speed of the application/trigger frequency. COMPUTER-ISOLATED means the trigger arrival time stamps will be judged by the system time (performance counter) of the computer. In this case, there must be a trigger reader in every computer.",
+      "default": "COMPUTER-ISOLATED",
+      "type": "string",
+      "enum": [
+        "DAQ-SYSTEM-WIDE",
+        "COMPUTER-ISOLATED"
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/counting-mode",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/counting-mode",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "trigger_arrival_tolerance_time": {
+      "title": "trigger_arrival_tolerance_time",
+      "description": "trigger arrival tolerance time in seconds, for example, 0.025 for 25ms",
+      "default": 0.025,
+      "type": "number",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/trigger-arrival-tolerance-time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/trigger-arrival-tolerance-time",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "use_only_successful_shots": {
+      "title": "use_only_successful_shots",
+      "description": "use only successful shots for data collection",
+      "default": true,
+      "type": "boolean",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/use-only-successful-shots",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/use-only-successful-shots",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "serial_number": {
+      "title": "serial_number",
+      "description": "the serial number of picoscope to open, if supplied will be automatically connected.",
+      "default": "",
+      "type": "string",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/serial-number",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/serial-number",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "info": {
+      "title": "info",
+      "description": "model of opened picoscope",
+      "readOnly": true,
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/info",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "channel_A": {
+      "title": "channel_A",
+      "description": "Data for channel A",
+      "readOnly": true,
+      "unit": "V",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/channel-A",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "channel_B": {
+      "title": "channel_B",
+      "description": "Data for channel B",
+      "readOnly": true,
+      "unit": "V",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/channel-B",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "channel_C": {
+      "title": "channel_C",
+      "description": "Data for channel C",
+      "readOnly": true,
+      "unit": "V",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/channel-C",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "channel_D": {
+      "title": "channel_D",
+      "description": "Data for channel D",
+      "readOnly": true,
+      "unit": "V",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/channel-D",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "time": {
+      "title": "time",
+      "description": "timestamp of measured data",
+      "readOnly": true,
+      "unit": "s",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/time",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "time_interval": {
+      "title": "time_interval",
+      "description": "Total time to record",
+      "default": 1000,
+      "unit": "us",
+      "type": "number",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/time-interval",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/time-interval",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "resolution": {
+      "title": "resolution",
+      "description": "Requested sample interval",
+      "default": 1,
+      "unit": "ns",
+      "type": "number",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/resolution",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/resolution",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "pre_trigger": {
+      "title": "pre_trigger",
+      "description": "Time before trigger to record",
+      "default": 0,
+      "unit": "us",
+      "type": "number",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/pre-trigger",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        },
+        {
+          "href": "https://example.com/picoscope/pre-trigger",
+          "op": "writeproperty",
+          "htv:methodName": "PUT",
+          "contentType": "application/json"
+        }
+      ],
+      "minimum": 0
+    },
+    "max_adc": {
+      "title": "max_adc",
+      "description": "max value of the ADC possible for given resolution of data, 32512 for 8 bits & 32767 for higher bits.",
+      "default": 32512,
+      "readOnly": true,
+      "type": "integer",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/max-adc",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "ranges": {
+      "title": "ranges",
+      "description": "Voltage ranges supported by picoscope in mV unit",
+      "default": [
+        10,
+        20,
+        50,
+        100,
+        200,
+        500,
+        1000,
+        2000,
+        5000,
+        10000,
+        20000,
+        50000,
+        100000,
+        200000
+      ],
+      "readOnly": true,
+      "type": "array",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/ranges",
+          "op": "readproperty",
+          "htv:methodName": "GET",
+          "contentType": "application/json"
+        }
+      ]
+    }
+  },
+  "actions": {
+    "connect": {
+      "title": "connect",
+      "description": "Open a Picoscope 6000. Serial number is mandatory and does not open first available device.  Parameters ---------- serial_number : str, optional Serial number of the scope to be opened (looks like 'CR524/015').  Returns ------- None.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/connect",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "serial_number": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "disconnect": {
+      "title": "disconnect",
+      "description": "Close the unit.  Returns ------- None.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/disconnect",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "exit": {
+      "title": "exit",
+      "description": "Exit the object without killing the eventloop that runs this object. If Thing was started using the run() method, the eventloop is also killed. This method can only be called remotely.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/exit",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "get_analogue_offset": {
+      "title": "get_analogue_offset",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/get-analogue-offset",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "voltage_range": {
+            "type": "string",
+            "enum": [
+              "10mV",
+              "20mV",
+              "50mV",
+              "100mV",
+              "200mV",
+              "500mV",
+              "1V",
+              "2V",
+              "5V",
+              "10V",
+              "20V",
+              "50V",
+              "MAX_RANGES"
+            ]
+          },
+          "coupling": {
+            "type": "string",
+            "enum": [
+              "AC",
+              "DC"
+            ]
+          }
+        }
+      },
+      "output": {
+        "type": "array",
+        "minItems": 2,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "get_timebase": {
+      "title": "get_timebase",
+      "description": "Get timebase and sampling parameters from the scope.  Parameters ---------- interval : `float` Requested time interval in [us]. resolution : `float` Requested time sampling in [ns]. oversample : int, optional Required oversampling. Has to be between 0 and `PS6000_MAX_OVERSAMPLE_8BIT`. The default is 0.  Returns ------- tb: int Integer encoding the timebase. For explanation see Programmers Guide. dtns: `float` Actual sampling interval for this timebase and settings. max_samples: int Max number of samples available with these settings. max_interval : `float` Max time interval in this timebase in [us].",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/get-timebase",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "number",
+            "minimum": 0
+          },
+          "resolution": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "timebase": {
+            "type": "number",
+            "minimum": 0
+          },
+          "dtns": {
+            "type": "number",
+            "minimum": 0
+          },
+          "max_samples": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "max_interval": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "get_unit_info": {
+      "title": "get_unit_info",
+      "description": "Get information about the opened unit.  Parameters ---------- info : int Code for the required information (for values see below).  Returns ------- string : str The returned information.  Info Codes ---------- 0: PICO_DRIVER_VERSION Version number of the DLL 1: PICO_USB_VERSION Type of USB connection 2: PICO_HARDWARE_VERSION Hardware version of the device 3: PICO_VARIANT_INFO Model number 4: PICO_BATCH_AND_SERIAL Serial number of the scope 5: PICO_CAL_DATE Calibration date 6: PICO_KERNEL_VERSION Version of the kernel driver 7: PICO_DIGITAL_HARDWARE_VERSION Hardware version of the digital section 8: PICO_ANALOG_HARDWARE_VERSION Hardware version of the analog section 9: PICO_FIRMWARE_VERSION_1 Version of firmware 1 A: PICO_FIRMWARE_VERSION_2 Version of firmware 2",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/get-unit-info",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "info_code": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "get_values": {
+      "title": "get_values",
+      "description": "Retrieve the data from the scope to previously set buffers (see `set_data_buffer`).  Parameters ---------- num_samples : int Number of samples requested. start_index : int, optional Index indicating the start point for data collection. The default is 0. downsample_ratio : int, optional Downsampling factor applied to the raw data. Has to be greater than 0. The default is 1. downsample_mode : int, optional Index indicating the downsampling mode applied. 0 corresponds to no downsampling. The default is 0. seg_index : int, optional Number of the memory segment the data is stored in. The default is 0.  Returns ------- num_samples : int Actual number of samples retrieved from the scope. overflow : int Bitmask indicating overvoltages for each channel. Bit 0 corresponds to channel 'A'.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/get-values",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "load_properties_from_DB": {
+      "title": "load_properties_from_DB",
+      "description": "Load and apply property values which have ``db_init`` or ``db_persist`` set to ``True`` from database",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/properties/db-reload",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "ping": {
+      "title": "ping",
+      "description": "ping the Thing to see if it is alive",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/ping",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "reset_shot_info": {
+      "title": "reset_shot_info",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/reset-shot-info",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "resubscribe_shot_counter": {
+      "title": "resubscribe_shot_counter",
+      "description": "recreate proxy object for trigger reader",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/resubscribe-shot-counter",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "run_block": {
+      "title": "run_block",
+      "description": "Run a block acquisition with the previously set channel settings.  Parameters ---------- pre_trigger_samples : int Number of samples to take before trigger. post_trigger_samples : int Number of samples to take after trigger. timebase : int Timebase as returned by `get_timebase`. oversample : int, optional Oversampling factor (max 256). The default is 0. seg_index : int, optional Index specifying which memory segment to use. The default is 0. lp_ready : `function pointer`, optional Pointer to the callback function which is called when the data has been collected. If None the default `ps6000IsReady` is used. The default is None. p_param : `void pointer`, optional Pointer passed to the callback function. The default is None.  Returns ------- time_indisposed : int Time the scope will spend collection samples in [ms].",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/run-block",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "run_blocked_acq_HL": {
+      "title": "run_blocked_acq_HL",
+      "description": "Run a block acquisition while handling timebase selection and buffer preparation silently.  Parameters ---------- time_interval : `int` Total time to record in [us]. Will be reduced if it exceeds the max time interval for this resolution. resolution : `int` Requested sample interval in [ns]. The actual sampling might differ slightly due to the discretized timebases of the scope. pre_trigger : `float`, optional Time to record before the trigger in [us]. The default is 0.  Returns ------- buffer : `dict` Dictionary containing the data for each enabled channel in [V] as `np.array` as well as the corresponding times in [s]. If a loop acquisition is aborted while waiting for the block, an empty dict is returned.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/run-blocked-acq-HL",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "set_channel": {
+      "title": "set_channel",
+      "description": "Set the parameter for a channel. https://www.picotech.com/download/manuals/picoscope-6000-series-a-api-programmers-guide.pdf  Parameters ---------- channel : {'A', 'B', 'C', 'D'} Channel to set. enabled : `bool`, optional Enable or disable the channel. The default is True. v_range : {'50mV', '100mV', '200mV', '500mV', '1V', '2V', '5V', '10V', '20V', '50V', 'MAX_RANGES'}, optional Voltage range of the channel. The default is '2V'. offset : float, optional Analog offset of the channel. The range of offsets depends on the selected voltage range. For details see Programmers Guide. The default is 0. coupling : {'AC', 'DC_1M', 'DC_50R'}, optional Coupling of the channel. For 50Ohm impedance the 20V and 50V ranges are not available. AC coupling implies 1MOhm impedance and is only sensitive for frequencies higher than 1 hertz. The default is 'DC_1M'. bw_limiter : {'full', '20MHz'}, optional Bandwidth limiter (-3dB limit). The default is 'full'.  Returns ------- None.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/set-channel",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "voltage_range": {
+            "type": "string",
+            "enum": [
+              "10mV",
+              "20mV",
+              "50mV",
+              "100mV",
+              "200mV",
+              "500mV",
+              "1V",
+              "2V",
+              "5V",
+              "10V",
+              "20V",
+              "50V",
+              "MAX_RANGES"
+            ]
+          },
+          "offset": {
+            "type": "number"
+          },
+          "coupling": {
+            "type": "string",
+            "enum": [
+              "AC",
+              "DC"
+            ]
+          },
+          "bw_limiter": {
+            "type": "string",
+            "enum": [
+              "full",
+              "20MHz"
+            ]
+          }
+        }
+      }
+    },
+    "set_data_buffer": {
+      "title": "set_data_buffer",
+      "description": "Prepare a data buffer for a single channel.  Parameters ---------- channel : {'A', 'B', 'C', 'D'} Channel name. num_samples : int Size of the buffer. downsample_ratio_mode : int, optional Mode to use for downsampling. The default is 0.  Returns ------- buffer : `c_short_array` Empty array in which the data will be written.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/set-data-buffer",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          },
+          "num_samples": {
+            "type": "integer"
+          },
+          "downsample_ratio_mode": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "set_trigger": {
+      "title": "set_trigger",
+      "description": "Set a trigger using the simplified `ps6000SetSimpleTrigger` function.  Parameters ---------- enabled : `bool` Arm or disable the trigger. channel : {'A', 'B', 'C', 'D', 'AUX'} Source of the trigger. Can be any channel or the AUX input. threshold : `float` Threshold of the trigger. Depending on the value of `adc` given in [V] or ADC counts. By default in [V]. Note that the trigger has to be reset, if the voltage range of the trigger channel is changed. adc : `bool`, optional If True the threshold is given in ADC counts, if False as voltage. The default is False. direction : {'above', 'below', 'rising', 'falling', 'rising_or_falling'}, optional Direction for the trigger. The default is 'rising'. delay : int, optional The delay between the trigger and the first sample taken in [s]. The default is 0. auto_trigger (or auto trigger time): int Time in [ms] the device will wait if no trigger occurs. Use 0 for waiting indefinitely.  Returns ------- None.  Voltage to ADC conversion ------------------------- The scope scales the samples to 16 bits. The max and min values are stored in constants: PS6000_MAX_VALUE (32512) and PS6000_MIN_VALUE (-32512). For conversion between voltage U and ADC the selected voltage range U_max has to be taken into account: ADC = U * 32512 / U_max",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/set-trigger",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "EXTERNAL",
+              "AUX"
+            ]
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "adc": {
+            "type": "boolean"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "above",
+              "below",
+              "rising",
+              "falling",
+              "rising_or_falling"
+            ]
+          },
+          "delay": {
+            "type": "integer"
+          },
+          "auto_trigger": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "start_acquisition": {
+      "title": "start_acquisition",
+      "description": "Start automated data acquisition (`measurement_loop`) in a background thread.  Parameters ----------  Returns ------- None.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/start-acquisition",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "stop_acquisition": {
+      "title": "stop_acquisition",
+      "description": "Stop the automatic acquisition by setting the run flag to False and waiting for the thread to finish.  Returns ------- None.",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/stop-acquisition",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ]
+    },
+    "toggle_shot_counting": {
+      "title": "toggle_shot_counting",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/toggle-shot-counting",
+          "op": "invokeaction",
+          "htv:methodName": "POST",
+          "contentType": "application/json"
+        }
+      ],
+      "input": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      }
+    }
+  },
+  "events": {
+    "data_ready_event": {
+      "title": "data_ready_event",
+      "description": "Event to indicate data is ready for processing",
+      "forms": [
+        {
+          "href": "https://example.com/picoscope/data-ready-event",
+          "op": "subscribeevent",
+          "htv:methodName": "GET",
+          "contentType": "text/plain",
+          "subprotocol": "sse"
+        }
+      ],
+      "data": {
+        "type": "string"
+      }
+    }
+  },
+  "forms": [
+    {
+      "href": "https://example.com/picoscope/properties",
+      "op": "readallproperties",
+      "htv:methodName": "GET",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/picoscope/properties",
+      "op": "writeallproperties",
+      "htv:methodName": "PUT",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/picoscope/properties",
+      "op": "readmultipleproperties",
+      "htv:methodName": "GET",
+      "contentType": "application/json"
+    },
+    {
+      "href": "https://example.com/picoscope/properties",
+      "op": "writemultipleproperties",
+      "htv:methodName": "PATCH",
+      "contentType": "application/json"
+    }
+  ],
+  "security": "unimplemented",
+  "securityDefinitions": {
+    "unimplemented": {
+      "scheme": "nosec",
+      "description": "currently no security scheme supported - use cookie auth directly on hololinked.server.HTTPServer object"
+    }
+  }
+}
