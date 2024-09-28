@@ -1,7 +1,7 @@
 import time
 import threading 
 import typing
-from datetime import datetime, timedelta
+from datetime import datetime
 from pydantic import BaseModel
 
 from hololinked.param import depends_on
@@ -10,6 +10,7 @@ from hololinked.server.properties import (Number, Integer, String, Selector,
                                         Boolean, ClassSelector)
 from hololinked.client import ObjectProxy
 from hololinked.server.td import JSONSchema
+from .schema import *
 
 class TriggerReader(BaseModel):
     instance_name: str
@@ -22,10 +23,11 @@ class TriggerReader(BaseModel):
 JSONSchema.register_type_replacement(TriggerReader, 'object', TriggerReader.model_json_schema())
 
 
+
 class HWTriggeredDevice(Thing):
     """
     Prototype class for hardware triggered devices. Inherit from this class to 
-    collect measurement on hardware trigger which arrives as a software event.
+    collect measurement from your instrumentation on a hardware trigger that arrives as a software event.
     """
 
     def __init__(self, instance_name : str, **kwargs) -> None:
@@ -33,20 +35,24 @@ class HWTriggeredDevice(Thing):
         self._shot_update_lock = threading.Lock()
         self._shot_updated_event = threading.Event()
         self.shot_update_successful = False
-        self._trigger_device = ObjectProxy(self.trigger_reader.instance_name, self.trigger_reader.protocol)
+        self._trigger_device = ObjectProxy(self.trigger_reader.instance_name, self.trigger_reader.protocol, 
+                                        handshake_timeout=10000)
 
 
     shot_number = Integer(doc="latest shot number counted, None for never counted", 
-                        default=None, allow_None=True, bounds=(0, None))
+                        default=None, allow_None=True, bounds=(0, None)) # type: typing.Optional[int]
     
     shot_time = String(doc="time of the lastest shot, None for no shots arrived", 
-                        default=None, allow_None=True) 
-
-    system_shot_time = Number(doc="system time of the lastest shot, None for no shots arrived", 
-                            default=None, allow_None=True, bounds=(0, None))
+                        default=None, allow_None=True) # type: typing.Optional[str]
     
+    system_shot_time = Number(doc="system time of the lastest shot, None for no shots arrived", 
+                            default=None, allow_None=True, bounds=(0, None)) # type: typing.Optional[typing.Union[float, int]]
+    
+    experiment_run_no = Integer(doc="experiment run number, increment for every new experiment run before starting to count the HW triggers", 
+                                default=1, bounds=(1, None)) # type: int
+
     shot_counting_enabled = Boolean(default=False, doc="enable counting of shots (consider this also as an action)", 
-                                db_commit=True)
+                                db_commit=True) # type: bool
 
     trigger_reader = ClassSelector(doc="trigger reader device address", class_=TriggerReader,
                                 default=TriggerReader(instance_name='arduino-trigger-reader', protocol='IPC', address=''), 
@@ -59,13 +65,13 @@ class HWTriggeredDevice(Thing):
                         a global time stamp passed onto all measurement devices in all computers. In this case, the clocks of the computers need to 
                         accurate/in-sync desirable to the speed of the application/trigger frequency. COMPUTER-ISOLATED means the trigger arrival 
                         time stamps will be judged by the system time (performance counter) of the computer. In this case, there must be a trigger 
-                        reader in every computer.""")
+                        reader in every computer.""") # type: str
 
     trigger_arrival_tolerance_time = Number(doc="trigger arrival tolerance time in seconds, for example, 0.025 for 25ms", 
-                                            default=0.025, bounds=(0, None))
+                                            default=0.025, bounds=(0, None)) # type: float
     
     def shot_event(self, event_data):
-        """"""
+        """callback when a trigger arrives"""
         self._shot_update_lock.acquire()
         try: 
             # reset every shot
@@ -106,12 +112,16 @@ class HWTriggeredDevice(Thing):
 
 
     def collect_measurement(self):
-        """override this method in your device class to collect latest measurement data for the shot"""
+        """
+        Override this method in your device class to collect latest measurement data for the shot if necessary.
+        This method is called when a shot event arrives on time nad is useful for devices that are not running an
+        infinite acquisition loop but still have a requirement to collect data on a hardware trigger event.
+        """
         self.logger.debug(f'HWTriggeredDevice prototype collect_measurement - shot number {self.shot_number}')
 
 
     def wait_for_trigger_event(self, trigger_delay_tolerance_reference_time) -> None:
-        """call this method in sync to wait for trigger event to arrive"""
+        """call this method in sync to wait for trigger event to arrive, useful for infinite loops performing acquisition"""
         if self.counting_mode == 'COMPUTER-ISOLATED':
             assert isinstance(trigger_delay_tolerance_reference_time, float), "you passed a wrong reference time, you need to send a float from time.perf_counter()"
             elapsed_time = time.perf_counter() - trigger_delay_tolerance_reference_time
@@ -126,13 +136,7 @@ class HWTriggeredDevice(Thing):
 
 
     # @depends_on(shot_counting_enabled, on_init=False)
-    @action(input_schema={
-        'type' : 'object', 
-        'properties' : {
-            'value' : {'type' : 'boolean'}
-        }, 
-        'required' : ['value']}
-    )
+    @action(input_schema=toggle_shot_counting_schema)
     def toggle_shot_counting(self, value : bool):
         if value:
             self.logger.info(f'shot counting enabled')

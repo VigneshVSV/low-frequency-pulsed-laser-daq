@@ -1,15 +1,15 @@
 import time 
 import pandas as pd
 
-from picoscope import Picoscope5000
+from picoscope import Picoscope6000
 from data_storage.file_storage import FileStorage
 from triggered_device import HWTriggeredDevice
 
 
-class Picoscope(Picoscope5000, HWTriggeredDevice):
+class Picoscope(Picoscope6000, HWTriggeredDevice):
 
     def __init__(self, instance_name: str) -> None:
-        Picoscope5000.__init__(self, instance_name)
+        Picoscope6000.__init__(self, instance_name)
         HWTriggeredDevice.__init__(self, instance_name)
         self.data_file = FileStorage()
 
