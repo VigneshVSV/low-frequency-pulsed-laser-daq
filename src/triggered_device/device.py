@@ -35,8 +35,11 @@ class HWTriggeredDevice(Thing):
         self._shot_update_lock = threading.Lock()
         self._shot_updated_event = threading.Event()
         self.shot_update_successful = False
-        self._trigger_device = ObjectProxy(self.trigger_reader.instance_name, self.trigger_reader.protocol, 
-                                        handshake_timeout=10000)
+        self._trigger_device = ObjectProxy(
+                                        instance_name=self.trigger_reader.instance_name, 
+                                        protocol=self.trigger_reader.protocol, 
+                                        handshake_timeout=10000
+                                    )
 
 
     shot_number = Integer(doc="latest shot number counted, None for never counted", 
@@ -70,6 +73,8 @@ class HWTriggeredDevice(Thing):
     trigger_arrival_tolerance_time = Number(doc="trigger arrival tolerance time in seconds, for example, 0.025 for 25ms", 
                                             default=0.025, bounds=(0, None)) # type: float
     
+    use_only_successful_shots = Boolean(doc="use only successful shots for data collection", default=True) # type: bool
+
     def shot_event(self, event_data):
         """callback when a trigger arrives"""
         self._shot_update_lock.acquire()
@@ -152,4 +157,4 @@ class HWTriggeredDevice(Thing):
         self.system_shot_time = None
         self.shot_update_successful = False
         self._shot_updated_event.clear()
-        self.logger.info('shot info reset')
+        self.logger.debug('shot info reset')
