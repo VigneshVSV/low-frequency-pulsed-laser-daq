@@ -9,10 +9,7 @@ from hololinked.server import Thing, action
 from hololinked.server.properties import (Number, Integer, String, Selector, 
                                         Boolean, ClassSelector)
 from hololinked.client import ObjectProxy
-
 from .schema import *
-
-
 
 
 
@@ -70,6 +67,7 @@ class HWTriggeredDevice(Thing):
                                             default=0.025, bounds=(0, None)) # type: float
     
     use_only_successful_shots = Boolean(doc="use only successful shots for data collection", default=True) # type: bool
+
 
     def shot_event(self, event_data):
         """callback when a trigger arrives"""
