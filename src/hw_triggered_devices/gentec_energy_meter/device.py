@@ -1,5 +1,6 @@
 import datetime
 import time
+import os
 from gentec_energy_meters.extensions import GentecMaestroEnergyMeter as GentecEnergyMeter, EnergyDataPoint
 # See base implementation here : https://gitlab.com/hololinked-examples/gentec-optical-energy-meters
 # pip install it to use it in this script
@@ -14,7 +15,12 @@ class GentecMaestroEnergyMeter(HWTriggeredDevice, GentecEnergyMeter):
     def __init__(self, instance_name: str) -> None:
         HWTriggeredDevice.__init__(self, instance_name)
         GentecEnergyMeter.__init__(self, instance_name)
-        self.data_file = FileStorage()
+        self.data_file = FileStorage(
+                                path=os.environ.get('DATA_PATH', 'data'),
+                                filename=f'energy_data_{datetime.datetime.today()}.txt',
+                                separator='\t',
+                                columns=['shot number', 'shot time', 'measurement time', 'energy']
+                            )
 
     def loop(self):
         self._run = True
@@ -38,12 +44,14 @@ class GentecMaestroEnergyMeter(HWTriggeredDevice, GentecEnergyMeter):
                         continue
                 self.energy_history.timestamp.append(timestamp)
                 self.energy_history.energy.append(self._last_measurement)
-                self.data_point_event.push(EnergyDataPoint(
-                                            timestamp=timestamp, 
-                                            energy=self._last_measurement
-                                        ))
-                # if self._statistics_enabled:
-                #     self.statistics_event.push(self.statistics)
+                # self.data_point_event.push(EnergyDataPoint(
+                #                             timestamp=timestamp, 
+                #                             energy=self._last_measurement
+                #                         ))
+                self.data_file.store([self.shot_number, self.shot_time, timestamp, self._last_measurement])
+                if self._statistics_enabled:
+                    self.statistics_event.push(self.statistics)
+                self.data
                 self.logger.debug(f"New data point : {self._last_measurement} J")
             else:
                 self.logger.debug("No new data point available")

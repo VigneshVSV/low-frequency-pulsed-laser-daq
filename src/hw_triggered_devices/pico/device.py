@@ -60,8 +60,10 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
             data = pd.DataFrame(data)
             self.data_ready_event.push(measurement_time)
             if hasattr(self, 'data_file'):
-                self.data_file.store(data)
+                self.data_file.store_in_new_file(data)
             self.logger.debug(f"took measurement {counter} at {measurement_time} system time, total elapsed time {time.perf_counter() - acquisition_start_time} ms")
            
 
-            
+def store_data_in_pickled_format(file_handle, data : pd.DataFrame):
+    data.to_pickle(file_handle)
+ 

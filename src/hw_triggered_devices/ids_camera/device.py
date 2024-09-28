@@ -1,12 +1,16 @@
 import base64
 import datetime
 import time
+import imageio.v3 as imageio
 from ueye_camera import UEyeCamera
 # See base implementation here : https://gitlab.com/hololinked-examples/ids-ueye-camera
 # pip install it to use it in this script
 from data_storage.file_storage import FileStorage
 from triggered_device import HWTriggeredDevice
 
+
+def store_jpeg(file_handle, image):
+    imageio.imwrite(file_handle, image)
 
 class Camera(HWTriggeredDevice, UEyeCamera):
 
@@ -36,6 +40,7 @@ class Camera(HWTriggeredDevice, UEyeCamera):
                         continue
                 self._last_numpy_image = image
                 self._last_jpeg = base64.b64encode(self.cast_image(image, format='jpeg'))
+                self.data_file.store([self.shot_number, self.shot_time, timestamp, self._last_jpeg])
                 self.logger.debug(f"got image at {timestamp} with frame count {self.frame_count}") # framecount read triggers change event  
                 self.image_event.push(self._last_jpeg, serialize=False)
             except Exception as ex:
