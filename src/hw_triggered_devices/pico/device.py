@@ -2,6 +2,8 @@ import time
 import pandas as pd
 
 from picoscope import Picoscope6000
+# See base implementation here : https://gitlab.com/hololinked-examples/picoscope
+# pip install it to use it in this script
 from data_storage.file_storage import FileStorage
 from triggered_device import HWTriggeredDevice
 
@@ -34,6 +36,8 @@ class Picoscope(Picoscope6000, HWTriggeredDevice):
                 self.wait_for_trigger_event(measurement_time)
             if not self.shot_update_successful:
                 self.logger.error(f"shot event {counter} arrived too late")
+                if self.use_only_successful_shots:
+                    continue
             
             if 'A' in data:
                 self.channel_A = data['A']
