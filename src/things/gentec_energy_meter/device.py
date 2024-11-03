@@ -12,15 +12,14 @@ from triggered_device import HWTriggeredDevice
 class GentecMaestroEnergyMeter(HWTriggeredDevice, GentecEnergyMeter):
 
 
-    def __init__(self, instance_name: str) -> None:
-        HWTriggeredDevice.__init__(self, instance_name)
-        GentecEnergyMeter.__init__(self, instance_name)
-        self.data_file = FileStorage(
-                                path=os.environ.get('DATA_PATH', 'data'),
-                                filename=f'energy_data_{datetime.datetime.today()}.txt',
-                                separator='\t',
-                                columns=['shot number', 'shot time', 'measurement time', 'energy']
-                            )
+    def __init__(self, instance_name: str, serial_url : str, **kwargs) -> None:
+        super().__init__(instance_name=instance_name, serial_url=serial_url, **kwargs)
+        # self.data_file = FileStorage(
+        #                         path=os.environ.get('DATA_PATH', 'data'),
+        #                         filename=f'energy_data_{datetime.datetime.today()}.txt',
+        #                         separator='\t',
+        #                         columns=['shot number', 'shot time', 'measurement time', 'energy']
+        #                     )
 
     def loop(self):
         self._run = True

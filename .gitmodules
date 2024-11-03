@@ -1,3 +1,6 @@
 [submodule "src/diy-arduino-hardware-trigger-reader"]
 	path = src/diy-arduino-hardware-trigger-reader
 	url = https://gitlab.com/hololinked-examples/diy-arduino-hardware-trigger-reader
+[submodule "src/things/serial-utility"]
+	path = src/things/serial-utility
+	url = https://gitlab.com/hololinked-examples/serial-utility.git

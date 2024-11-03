@@ -12,9 +12,10 @@ from triggered_device import HWTriggeredDevice
 
 def start_https_server():
     # You need to create a certificate on your own 
-    ssl_context = ssl.SSLContext(protocol = ssl.PROTOCOL_TLS)
+    ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain(f'assets{os.sep}security{os.sep}certificate.pem',
                         keyfile = f'assets{os.sep}security{os.sep}key.pem')
+    ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
 
     H = HTTPServer(['triggered-device-test'], port=8082, ssl_context=ssl_context)
     H.listen()
