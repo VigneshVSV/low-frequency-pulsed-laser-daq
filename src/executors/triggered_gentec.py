@@ -38,7 +38,7 @@ def multithreaded_example():
     
     GentecMaestroEnergyMeter(
         instance_name='gentec-energy-meter', 
-        serial_url='COM4',
+        serial_url='COM11',
         log_level=logging.DEBUG
     ).run_with_http_server(
         port=9005, ssl_context=ssl_context, 

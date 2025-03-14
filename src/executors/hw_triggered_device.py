@@ -17,7 +17,7 @@ def start_https_server():
                         keyfile = f'assets{os.sep}security{os.sep}key.pem')
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
 
-    H = HTTPServer(['triggered-device-test'], port=8082, ssl_context=ssl_context)
+    H = HTTPServer(['triggered-device-test'], port=9006, ssl_context=ssl_context)
     H.listen()
 
 

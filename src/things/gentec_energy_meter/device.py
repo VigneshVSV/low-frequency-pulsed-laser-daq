@@ -14,12 +14,13 @@ class GentecMaestroEnergyMeter(HWTriggeredDevice, GentecEnergyMeter):
 
     def __init__(self, instance_name: str, serial_url : str, **kwargs) -> None:
         super().__init__(instance_name=instance_name, serial_url=serial_url, **kwargs)
-        # self.data_file = FileStorage(
-        #                         path=os.environ.get('DATA_PATH', 'data'),
-        #                         filename=f'energy_data_{datetime.datetime.today()}.txt',
-        #                         separator='\t',
-        #                         columns=['shot number', 'shot time', 'measurement time', 'energy']
-        #                     )
+        self.data_file = FileStorage(
+                                path=os.environ.get('DATA_PATH', 'data\energy_data'),
+                                filename='shotlog.txt',
+                                separator='\t',
+                                columns=['shot number', 'shot time', 'measurement time', 'energy']
+                            )
+
 
     def loop(self):
         self._run = True
@@ -43,17 +44,19 @@ class GentecMaestroEnergyMeter(HWTriggeredDevice, GentecEnergyMeter):
                         continue
                 self.energy_history.timestamp.append(timestamp)
                 self.energy_history.energy.append(self._last_measurement)
-                # self.data_point_event.push(EnergyDataPoint(
-                #                             timestamp=timestamp, 
-                #                             energy=self._last_measurement
-                #                         ))
+                self.data_point_event.push(EnergyDataPoint(
+                                            timestamp=timestamp, 
+                                            energy=self._last_measurement
+                                        ))
                 self.data_file.store([self.shot_number, self.shot_time, timestamp, self._last_measurement])
                 if self._statistics_enabled:
                     self.statistics_event.push(self.statistics)
-                self.data
                 self.logger.debug(f"New data point : {self._last_measurement} J")
             else:
                 self.logger.debug("No new data point available")
             # auto serialization of the event data happens when a json() method is implemented,
             # which has been done in the dataclass
         
+
+
+  

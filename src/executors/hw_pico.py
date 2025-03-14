@@ -13,7 +13,7 @@ def start_https_server():
                         keyfile = f'assets{os.sep}security{os.sep}key.pem')
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_3
 
-    H = HTTPServer(['picoscope'], port=8086, ssl_context=ssl_context, 
+    H = HTTPServer(['picoscope'], port=9004, ssl_context=ssl_context, 
                       log_level=logging.DEBUG)  
     H.listen()
 
@@ -41,7 +41,7 @@ def multithreaded_example():
         serial_number='CR524/015',
         log_level=logging.DEBUG
     ).run_with_http_server(
-        port=8086, ssl_context=ssl_context, 
+        port=9004, ssl_context=ssl_context, 
         log_level=logging.DEBUG
     )
 
